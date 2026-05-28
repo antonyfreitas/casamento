@@ -624,9 +624,69 @@
   .d2 { transition-delay: .25s; }
   .d3 { transition-delay: .42s; }
 
+  /* ============================================================
+     LOGIN OVERLAY
+  ============================================================ */
+  #login-overlay {
+    position: fixed; inset: 0; z-index: 11000;
+    background: var(--off-white);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px; text-align: center;
+    transition: opacity 0.8s ease-in-out, visibility 0.8s;
+  }
+  #login-overlay.hidden {
+    opacity: 0; visibility: hidden; pointer-events: none;
+  }
+  .login-box {
+    max-width: 400px; width: 100%;
+  }
+  .login-box h2 {
+    font-family: var(--serif); font-weight: 300; font-style: italic;
+    font-size: 2rem; color: var(--text); margin-bottom: 24px;
+  }
+  .login-input-wrapper {
+    position: relative; margin-bottom: 20px;
+  }
+  .login-input {
+    width: 100%; padding: 16px;
+    background: white; border: 1px solid var(--blush);
+    border-radius: 4px; font-family: var(--sans);
+    font-size: 1rem; color: var(--text);
+    outline: none; transition: border-color 0.3s;
+    text-align: center; letter-spacing: 0.2em;
+  }
+  .login-input:focus { border-color: var(--rose); }
+  .login-btn {
+    background: var(--rose); color: white;
+    border: none; padding: 14px 40px;
+    font-family: var(--sans); text-transform: uppercase;
+    letter-spacing: 0.2em; font-size: 0.75rem;
+    cursor: pointer; transition: background 0.3s;
+    border-radius: 4px;
+  }
+  .login-btn:hover { background: var(--rose-dk); }
+  .login-error {
+    color: var(--rose-dk); font-size: 0.8rem; margin-top: 15px;
+    font-family: var(--sans); min-height: 1.2em; opacity: 0;
+  }
+
   </style>
 </head>
-<body>
+<body class="locked">
+
+  <!-- Overlay de Login -->
+  <div id="login-overlay">
+    <div class="login-box">
+      <span class="section-label">Acesso Reservado</span>
+      <h2>Antony & Anna Paula</h2>
+      <div class="login-input-wrapper">
+        <input type="password" id="pass-input" class="login-input" placeholder="PALAVRA-CHAVE">
+        <div id="login-error" class="login-error">Senha incorreta, tente novamente.</div>
+      </div>
+      <button class="login-btn" onclick="checkPass()">Entrar</button>
+    </div>
+  </div>
 
   <div id="progress-bar"></div>
   <canvas id="petals-canvas"></canvas>
@@ -866,6 +926,51 @@ Prometo me esforçar em trazer Cristo pro nosso lar, em perdoar e servir. Eu te 
 
   <script>
   /* =====================================================
+     LOGICA DE ACESSO
+  ===================================================== */
+  const PASS_CORRETA = "essastestemunhas"; // Altere aqui a senha
+
+  function checkPass() {
+    const input = document.getElementById('pass-input');
+    const error = document.getElementById('login-error');
+    
+    if (input.value.toLowerCase() === PASS_CORRETA) {
+      unlockSite();
+    } else {
+      error.style.opacity = '1';
+      gsap.fromTo(input, { x: -10 }, { x: 10, duration: 0.1, repeat: 5, yoyo: true });
+    }
+  }
+
+  function unlockSite() {
+    localStorage.setItem('wedding_access', 'true');
+    document.body.classList.remove('locked');
+    
+    const tl = gsap.timeline();
+    tl.to('#login-overlay', { opacity: 0, duration: 1, ease: "power2.inOut" })
+      .set('#login-overlay', { display: 'none' })
+      // Gatilho das animações do Hero após o login
+      .from('#hero-names', { y: 55, opacity: 0, duration: 1.8, ease: 'power3.out' }, "-=0.2")
+      .from('#hero-date',  { y: 22, opacity: 0, duration: 1.6, ease: 'power3.out' }, "-=1.2")
+      .from('.scroll-hint',{ opacity: 0, duration: 1.3 }, "-=1.0");
+  }
+
+  // Verifica se já logou antes
+  window.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('wedding_access') === 'true') {
+      document.getElementById('login-overlay').style.display = 'none';
+      document.body.classList.remove('locked');
+    } else {
+      // Impede o scroll inicial
+      window.scrollTo(0,0);
+    }
+  });
+
+  document.getElementById('pass-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') checkPass();
+  });
+
+  /* =====================================================
      CURSOR
   ===================================================== */
   const cursorDot  = document.getElementById('cursor');
@@ -951,10 +1056,6 @@ Prometo me esforçar em trazer Cristo pro nosso lar, em perdoar e servir. Eu te 
      GSAP — HERO SCROLL
   ===================================================== */
   gsap.registerPlugin(ScrollTrigger);
-
-  gsap.from('#hero-names', { y: 55, opacity: 0, duration: 1.8, ease: 'power3.out', delay: .35 });
-  gsap.from('#hero-date',  { y: 22, opacity: 0, duration: 1.6, ease: 'power3.out', delay: 1.0  });
-  gsap.from('.scroll-hint',{ opacity: 0, duration: 1.3, delay: 2.0 });
 
   const tlHero = gsap.timeline({
     scrollTrigger: {
