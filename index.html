@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <meta name="theme-color" content="#FDF6EE">
+  <title>Antony & Anna Paula · 1º de Maio de 2026</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+
+  <style>
+  /* ============================================================
+     TOKENS DE DESIGN — OFF-WHITE & ROSA PASTEL
+  ============================================================ */
+  :root {
+    --off-white:   #FFFAF8;
+    --cream:       #FFF3EF;
+    --blush-lt:    #FFE8E2;
+    --blush:       #FECFC4;
+    --rose:        #F4A89A;
+    --rose-dk:     #D97C70;
+    --mauve:       #C9938A;
+    --text-lt:     #8C6060;
+    --text:        #4A2828;
+    --dark:        #2A1515;
+    --serif:       'Cormorant Garamond', Georgia, serif;
+    --sans:        'Jost', sans-serif;
+  }
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--off-white);
+    color: var(--text);
+    font-family: var(--sans);
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  /* ============================================================
+     CURSOR PERSONALIZADO
+  ============================================================ */
+  .cursor {
+    width: 9px; height: 9px;
+    background: var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9999;
+    transform: translate(-50%,-50%);
+    mix-blend-mode: multiply;
+    transition: width .25s, height .25s, background .25s;
+  }
+  .cursor-ring {
+    width: 34px; height: 34px;
+    border: 1px solid var(--rose);
+    border-radius: 50%;
+    position: fixed; top: 0; left: 0;
+    pointer-events: none; z-index: 9998;
+    transform: translate(-50%,-50%);
+    opacity: .55;
+  }
+  @media (hover: none) {
+    .cursor, .cursor-ring { display: none; }
+    body { cursor: auto; }
+  }
+
+  /* ============================================================
+     PROGRESS BAR
+  ============================================================ */
+  #progress-bar {
+    position: fixed; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--blush), var(--rose), var(--blush-lt));
+    transform-origin: left; transform: scaleX(0);
+    z-index: 1000; transition: transform .05s linear;
+  }
+
+  /* ============================================================
+     PÉTALAS (canvas leve para mobile)
+  ============================================================ */
+  #petals-canvas {
+    position: fixed; inset: 0; width: 100vw; height: 100vh;
+    pointer-events: none; z-index: 2; opacity: .45;
+  }
+
+  /* ============================================================
+     1. HERO — FOTO DE ABERTURA COM SCROLL PARALLAX
+  ============================================================ */
+  #hero-wrapper {
+    position: relative; width: 100vw; height: 100vh;
+    overflow: hidden; background: #3A1A22;
+  }
+
+  .scene {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    justify-content: flex-end;
+    padding: clamp(28px, 7vw, 70px);
+  }
+
+  .scene img {
+    position: absolute; inset: 0;
+    width: 100%; height: 100%;
+    object-fit: cover; z-index: 1;
+    filter: brightness(.62) saturate(.8);
+    will-change: transform;
+  }
+
+  /* gradiente dramático de baixo */
+  .scene::after {
+    content:''; position: absolute; inset: 0; z-index: 2;
+    background: linear-gradient(to top, rgba(30,12,6,.65) 0%, rgba(30,12,6,.15) 45%, transparent 80%);
+  }
+
+  .scene-text {
+    position: relative; z-index: 3;
+    text-align: center; color: var(--off-white);
+  }
+
+  /* NOMES — tipografia principal */
+  .hero-names {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(2.8rem, 9vw, 7.5rem);
+    line-height: 1; letter-spacing: -.01em;
+    text-shadow: 0 4px 40px rgba(0,0,0,.3);
+    will-change: opacity, transform;
+  }
+  .hero-names em {
+    display: block; font-style: italic; font-weight: 300;
+    font-size: .52em; letter-spacing: .12em;
+    opacity: .8; margin: .12em 0;
+  }
+
+  .hero-date {
+    display: inline-block; margin-top: 18px;
+    font-family: var(--sans); font-weight: 200;
+    font-size: clamp(.65rem, 2vw, .9rem); letter-spacing: .42em;
+    text-transform: uppercase; color: rgba(253,248,242,.7);
+    border-top: 1px solid rgba(253,248,242,.2);
+    padding-top: 14px;
+    will-change: opacity, transform;
+  }
+
+  .scene-2, .scene-3 { opacity: 0; }
+  .scene-2 .scene-text h2,
+  .scene-3 .scene-text h2 {
+    font-family: var(--serif); font-weight: 300; font-style: italic;
+    font-size: clamp(2rem, 6vw, 5rem);
+    text-shadow: 0 3px 24px rgba(0,0,0,.3);
+  }
+  .scene-2 .scene-text p,
+  .scene-3 .scene-text p {
+    font-family: var(--sans); font-size: clamp(.65rem, 1.7vw, .88rem);
+    letter-spacing: .35em; text-transform: uppercase;
+    color: rgba(253,248,242,.65); margin-top: 14px; font-weight: 200;
+  }
+
+  /* hint de scroll */
+  .scroll-hint {
+    position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+    z-index: 4; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    color: rgba(253,248,242,.45); font-family: var(--sans); font-size: .65rem;
+    font-weight: 200; letter-spacing: .25em; text-transform: uppercase;
+  }
+  .scroll-hint .line {
+    width: 1px; height: 48px;
+    background: linear-gradient(to bottom, rgba(253,248,242,.45), transparent);
+    animation: scrollpulse 1.8s ease-in-out infinite;
+  }
+  @keyframes scrollpulse {
+    0%,100%{ transform: scaleY(1); opacity:.45; }
+    50%{ transform: scaleY(.5); opacity:.1; }
+  }
+
+  /* ============================================================
+     SECTION BASE
+  ============================================================ */
+  .section {
+    padding: clamp(70px, 10vw, 130px) clamp(20px, 5vw, 70px);
+    position: relative; overflow: hidden;
+  }
+
+  .section-label {
+    font-family: var(--sans); font-weight: 400;
+    font-size: .68rem; letter-spacing: .38em; text-transform: uppercase;
+    color: var(--rose-dk); margin-bottom: 14px; display: block;
+  }
+
+  .section-title {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(2.4rem, 5.5vw, 4.5rem);
+    color: var(--text); line-height: 1.05;
+  }
+  .section-title em { font-style: italic; }
+
+  /* ============================================================
+     2. FOTOS LARGADAS — EFEITO SCATTER
+  ============================================================ */
+  .section-scatter {
+    background: var(--off-white);
+    padding: clamp(60px, 9vw, 120px) 0;
+    overflow: hidden;
+  }
+
+  .scatter-label-wrap {
+    text-align: center;
+    padding: 0 clamp(20px, 5vw, 60px);
+    margin-bottom: clamp(50px, 8vw, 90px);
+  }
+
+  /* Container das fotos largadas */
+  .scatter-stage {
+    position: relative;
+    width: 100%;
+    min-height: 85vw;      /* ajusta conforme o nr. de fotos */
+    max-width: 900px;
+    margin: 0 auto;
+    /* no mobile vira um flow vertical com rotações */
+  }
+
+  .scatter-photo {
+    position: relative;
+    display: inline-block;
+    will-change: transform, opacity;
+    opacity: 0;
+    cursor: default;
+    /* estado inicial: empilhadas no centro */
+    transform: translateY(40px) rotate(0deg);
+  }
+
+  /* wrapper interno simula "impressão fotográfica" */
+  .scatter-photo-inner {
+    background: #fff;
+    padding: 10px 10px 32px 10px;
+    box-shadow: 0 8px 32px rgba(60,30,15,.14), 0 2px 8px rgba(60,30,15,.08);
+    border-radius: 2px;
+    transform: rotate(var(--rot));
+    transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease;
+    position: relative;
+  }
+
+  .scatter-photo-inner:hover {
+    transform: rotate(0deg) scale(1.04) !important;
+    box-shadow: 0 20px 55px rgba(60,30,15,.22);
+    z-index: 10;
+  }
+
+  .scatter-photo img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  /* caption polaroid */
+  .scatter-photo-inner .caption {
+    position: absolute; bottom: 6px; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--serif); font-style: italic;
+    font-size: .8rem; color: var(--mauve);
+    letter-spacing: .04em;
+  }
+
+  /* ---- LAYOUT MOBILE: coluna com alternância ---- */
+  .scatter-track {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+    padding: 0 clamp(20px, 6vw, 60px);
+  }
+
+  .scatter-photo { width: min(320px, 78vw); }
+  /* rotações alternadas definidas por CSS var */
+  .scatter-photo:nth-child(1) { --rot: -4deg; align-self: flex-start; }
+  .scatter-photo:nth-child(2) { --rot:  5deg; align-self: flex-end;   }
+  .scatter-photo:nth-child(3) { --rot: -2.5deg; align-self: center;   }
+  .scatter-photo:nth-child(4) { --rot:  6deg; align-self: flex-start; }
+  .scatter-photo:nth-child(5) { --rot: -5deg; align-self: flex-end;   }
+  .scatter-photo:nth-child(6) { --rot:  3deg; align-self: center;     }
+
+  /* ---- LAYOUT DESKTOP: grid solto com offsets ---- */
+  @media (min-width: 700px) {
+    .scatter-track {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      align-items: start;
+    }
+    .scatter-photo { width: 100%; }
+    .scatter-photo:nth-child(1) { --rot: -4deg;   margin-top: 20px; }
+    .scatter-photo:nth-child(2) { --rot:  5.5deg; margin-top: 60px; }
+    .scatter-photo:nth-child(3) { --rot: -2deg;   margin-top: 10px; }
+    .scatter-photo:nth-child(4) { --rot:  4deg;   margin-top: 40px; }
+    .scatter-photo:nth-child(5) { --rot: -6deg;   margin-top: 0px;  }
+    .scatter-photo:nth-child(6) { --rot:  3deg;   margin-top: 50px; }
+    .scatter-photo:nth-child(odd)  { align-self: start; }
+    .scatter-photo:nth-child(even) { align-self: end; }
+  }
+
+  /* ============================================================
+     3. VOTOS
+  ============================================================ */
+  .section-votos {
+    background: var(--blush-lt);
+    position: relative;
+  }
+
+  /* aura de luz suave */
+  .section-votos::before {
+    content:''; position: absolute;
+    top: -5%; right: -10%;
+    width: min(500px, 90vw); height: min(500px, 90vw);
+    background: radial-gradient(circle, var(--cream) 0%, transparent 68%);
+    filter: blur(80px); opacity: .9; pointer-events: none; z-index: 0;
+  }
+  .section-votos::after {
+    content:''; position: absolute;
+    bottom: -5%; left: -8%;
+    width: min(400px, 70vw); height: min(400px, 70vw);
+    background: radial-gradient(circle, var(--blush-lt) 0%, transparent 68%);
+    filter: blur(70px); opacity: .7; pointer-events: none; z-index: 0;
+  }
+
+  .votos-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr;
+    gap: 50px; position: relative; z-index: 1;
+  }
+  @media (min-width: 768px) {
+    .votos-inner { grid-template-columns: 1fr 1fr; align-items: start; gap: 70px; }
+  }
+
+  .votos-header { margin-bottom: 44px; }
+
+  /* as duas fotos dos votos — como cadernos largados */
+  .votos-fotos {
+    display: flex; flex-direction: column;
+    gap: 24px; position: relative;
+  }
+
+  .voto-foto-wrap {
+    will-change: transform; cursor: default;
+  }
+
+  .voto-foto-inner {
+    background: #fff;
+    padding: 10px 10px 36px 10px;
+    box-shadow: 0 10px 40px rgba(60,30,15,.13), 0 3px 10px rgba(60,30,15,.07);
+    border-radius: 2px;
+    position: relative;
+  }
+
+  .voto-foto-inner img {
+    width: 100%; display: block;
+    object-fit: cover;
+    aspect-ratio: 4/3;
+  }
+
+  .voto-foto-inner .voto-caption {
+    position: absolute; bottom: 8px; left: 0; right: 0;
+    text-align: center;
+    font-family: var(--serif); font-style: italic;
+    font-size: .82rem; color: var(--mauve);
+  }
+
+  /* rotações das fotos dos votos */
+  .voto-foto-wrap:nth-child(1) .voto-foto-inner { transform: rotate(-3deg); }
+  .voto-foto-wrap:nth-child(2) .voto-foto-inner { transform: rotate(3.5deg); }
+
+  .voto-foto-wrap:nth-child(1) .voto-foto-inner:hover,
+  .voto-foto-wrap:nth-child(2) .voto-foto-inner:hover {
+    transform: rotate(0deg) scale(1.03);
+    box-shadow: 0 20px 55px rgba(60,30,15,.2);
+    transition: all .35s cubic-bezier(.22,1,.36,1);
+  }
+
+  /* textos dos votos */
+  .votos-textos { display: flex; flex-direction: column; gap: 40px; }
+
+  .votos-titulo {
+    font-family: var(--serif); font-weight: 300;
+    font-size: clamp(2.6rem, 5.5vw, 4.2rem);
+    color: var(--text); line-height: 1;
+  }
+  .votos-titulo em {
+    display: block; font-style: italic; opacity: .55;
+    font-size: .46em; letter-spacing: .18em;
+    font-family: var(--sans); font-weight: 200;
+    text-transform: uppercase; margin-bottom: 8px;
+  }
+
+  .bloco-voto {
+    padding-left: 20px;
+    border-left: 1.5px solid var(--rose);
+  }
+  .bloco-voto-label {
+    font-family: var(--sans); font-weight: 400;
+    font-size: .68rem; letter-spacing: .32em;
+    text-transform: uppercase; color: var(--rose-dk); margin-bottom: 12px;
+  }
+  .bloco-voto p {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(1rem, 2.3vw, 1.18rem);
+    line-height: 1.9; color: var(--mauve);
+  }
+
+  /* ============================================================
+     DIVISOR
+  ============================================================ */
+  .divisor {
+    background: var(--off-white);
+    padding: 52px 24px; text-align: center;
+  }
+  .divisor-text {
+    font-family: var(--serif); font-style: italic;
+    font-size: clamp(1rem, 2.5vw, 1.3rem); color: var(--rose-dk);
+    letter-spacing: .14em;
+  }
+  .divisor-ornament {
+    display: flex; align-items: center; gap: 16px;
+    max-width: 320px; margin: 18px auto 0;
+  }
+  .divisor-ornament::before,
+  .divisor-ornament::after {
+    content:''; flex: 1; height: 1px; background: var(--rose); opacity: .6;
+  }
+  .div-diamond {
+    width: 7px; height: 7px; border: 1px solid var(--rose-dk);
+    transform: rotate(45deg);
+  }
+
+  /* ============================================================
+     4. GALERIA MASONRY CLOUDINARY
+  ============================================================ */
+  .section-galeria {
+    background: #3A1A22;
+    padding: clamp(70px, 9vw, 130px) clamp(16px, 4vw, 55px);
+  }
+
+  .galeria-header {
+    text-align: center; margin-bottom: clamp(48px, 7vw, 86px);
+  }
+  .galeria-header .section-label { color: var(--blush); }
+  .galeria-header .section-title { color: var(--off-white); }
+
+  .masonry-grid {
+    column-count: 1; column-gap: 10px;
+    max-width: 1150px; margin: 0 auto;
+  }
+  @media (min-width: 480px)  { .masonry-grid { column-count: 2; } }
+  @media (min-width: 860px)  { .masonry-grid { column-count: 3; } }
+
+  .masonry-item {
+    break-inside: avoid;
+    margin-bottom: 10px;
+    overflow: hidden; border-radius: 2px;
+    opacity: 0;
+    /* começa empilhada e rotacionada — estado inicial */
+    transform: translateY(30px) rotate(var(--item-rot, 0deg));
+    transition: box-shadow .4s ease, transform .4s ease;
+  }
+
+  /* rotações sutis por posição para dar o "espalhado" */
+  .masonry-item:nth-child(3n+1) { --item-rot:  0deg; }
+  .masonry-item:nth-child(3n+2) { --item-rot:  0deg; }
+  .masonry-item:nth-child(3n)   { --item-rot:  0deg; }
+
+  .masonry-item:hover {
+    box-shadow: 0 18px 45px rgba(0,0,0,.5);
+    transform: translateY(-4px) scale(1.02) !important;
+  }
+
+  .masonry-item img {
+    width: 100%; display: block;
+    filter: saturate(.88) brightness(.97);
+    transition: filter .5s ease, transform .5s ease;
+  }
+  .masonry-item:hover img { filter: saturate(1.1) brightness(1.03); transform: scale(1.04); }
+
+  .galeria-loading {
+    text-align: center; padding: 60px;
+    font-family: var(--serif); font-style: italic;
+    font-size: 1.3rem; color: var(--rose-dk);
+    animation: breathe 2.2s ease-in-out infinite;
+  }
+  @keyframes breathe { 0%,100%{opacity:1;} 50%{opacity:.35;} }
+
+  /* ============================================================
+     5. VÍDEO
+  ============================================================ */
+  .section-video {
+    background: var(--off-white); text-align: center;
+    position: relative; overflow: hidden;
+  }
+  .section-video::before {
+    content:''; position: absolute; top: 0; left: 0; right: 0;
+    height: 1px; background: linear-gradient(90deg, transparent, var(--rose), transparent);
+  }
+
+  .video-header { margin-bottom: clamp(40px, 6vw, 72px); }
+
+  .video-frame-outer {
+    max-width: 860px; margin: 0 auto;
+    opacity: 0; transform: scale(.97) translateY(20px);
+    transition: opacity 1s ease, transform 1s ease;
+    position: relative;
+  }
+  .video-frame-outer.in-view { opacity: 1; transform: scale(1) translateY(0); }
+
+  /* borda ornamental */
+  .video-frame-outer::before {
+    content:''; position: absolute;
+    inset: -14px; border: 1px solid var(--rose);
+    border-radius: 8px; pointer-events: none; opacity: .55;
+  }
+
+  .video-ratio {
+    position: relative; padding-bottom: 56.25%; height: 0;
+    border-radius: 5px; overflow: hidden;
+    box-shadow: 0 30px 80px rgba(60,30,15,.12);
+  }
+  .video-ratio iframe {
+    position: absolute; inset: 0; width: 100%; height: 100%; border: none;
+  }
+
+  /* ============================================================
+     6. TIMELINE
+  ============================================================ */
+  .section-timeline { background: var(--cream); }
+
+  .timeline {
+    max-width: 680px; margin: clamp(50px,8vw,90px) auto 0;
+    position: relative;
+  }
+  .timeline::before {
+    content:''; position: absolute;
+    left: 50%; top: 0; bottom: 0; width: 1px;
+    background: linear-gradient(to bottom, transparent, var(--rose) 15%, var(--rose) 85%, transparent);
+    transform: translateX(-50%);
+  }
+
+  .tl-item {
+    display: flex; align-items: flex-start; gap: 24px;
+    margin-bottom: 56px; opacity: 0; transform: translateY(22px);
+  }
+  .tl-item:nth-child(even) { flex-direction: row-reverse; }
+
+  .tl-content {
+    flex: 1; padding: 20px 24px;
+    background: var(--off-white);
+    border-radius: 4px;
+    box-shadow: 0 6px 24px rgba(60,30,15,.06);
+  }
+  .tl-item:nth-child(odd)  .tl-content { border-radius: 4px 12px 12px 4px; }
+  .tl-item:nth-child(even) .tl-content { border-radius: 12px 4px 4px 12px; }
+
+  .tl-hora {
+    font-family: var(--sans); font-size: .62rem;
+    letter-spacing: .3em; text-transform: uppercase;
+    color: var(--rose-dk); margin-bottom: 6px; font-weight: 400;
+  }
+  .tl-titulo {
+    font-family: var(--serif); font-size: 1.35rem;
+    color: var(--text); margin-bottom: 6px;
+  }
+  .tl-desc {
+    font-family: var(--sans); font-size: .83rem;
+    line-height: 1.75; color: var(--mauve); font-weight: 300;
+  }
+
+  .tl-dot {
+    flex-shrink: 0; width: 12px; height: 12px;
+    border-radius: 50%; background: var(--off-white);
+    border: 2px solid var(--rose); margin-top: 24px;
+    position: relative;
+  }
+  .tl-dot::after {
+    content:''; position: absolute; inset: 3px;
+    border-radius: 50%; background: var(--rose);
+  }
+  .tl-spacer { flex: 1; }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer {
+    background: #3A1A22; padding: 80px 24px 56px;
+    text-align: center; overflow: hidden; position: relative;
+  }
+  footer::before {
+    content:'"'; position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
+    font-family: var(--serif); font-size: 18rem; font-style: italic;
+    color: rgba(255,255,255,.025); pointer-events: none; line-height: 1;
+  }
+  .footer-names {
+    font-family: var(--serif); font-weight: 300; font-style: italic;
+    font-size: clamp(2rem, 6vw, 4rem); color: var(--off-white);
+    margin-bottom: 14px;
+  }
+  .footer-date {
+    font-family: var(--sans); font-weight: 200; font-size: .72rem;
+    letter-spacing: .44em; text-transform: uppercase;
+    color: var(--rose-dk); margin-bottom: 44px;
+  }
+  .footer-divider { width: 48px; height: 1px; background: var(--rose-dk); margin: 0 auto 36px; }
+  .footer-love {
+    font-family: var(--serif); font-style: italic;
+    font-size: .95rem; color: rgba(253,248,242,.3);
+  }
+
+  /* ============================================================
+     REVEAL UTILITÁRIO
+  ============================================================ */
+  .reveal {
+    opacity: 0; transform: translateY(28px);
+    transition: opacity .85s ease, transform .85s ease;
+  }
+  .reveal.visible { opacity: 1; transform: none; }
+  .d1 { transition-delay: .1s; }
+  .d2 { transition-delay: .25s; }
+  .d3 { transition-delay: .42s; }
+
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+  <canvas id="petals-canvas"></canvas>
+
+  <!-- Cursor personalizado -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursor-ring"></div>
+
+  <!-- ==================================================
+       1. HERO
+  ================================================== -->
+  <div id="hero-wrapper">
+
+    <!-- CENA 1 — nova foto -->
+    <div class="scene scene-1">
+      <img
+        src="https://res.cloudinary.com/dciyadljs/image/upload/f_auto,q_auto,w_1400/v1779892808/IMG_9110_ocvcog.jpg"
+        alt="Cerimônia Antony e Anna Paula"
+        fetchpriority="high"
+      >
+      <div class="scene-text">
+        <h1 class="hero-names" id="hero-names">
+          Antony
+          <em>&</em>
+          Anna Paula
+        </h1>
+        <p class="hero-date" id="hero-date">1º de Maio de 2026</p>
+      </div>
+    </div>
+
+    <!-- CENA 2 -->
+    <div class="scene scene-2">
+      <img src="https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=1200&q=80" alt="A promessa">
+      <div class="scene-text titulo-cena-2">
+        <h2>A Promessa</h2>
+        <p>Cada palavra, eternamente</p>
+      </div>
+    </div>
+
+    <!-- CENA 3 -->
+    <div class="scene scene-3">
+      <img src="https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=1200&q=80" alt="O nosso sim">
+      <div class="scene-text titulo-cena-3">
+        <h2>O Nosso Sim</h2>
+        <p>O início de tudo</p>
+      </div>
+    </div>
+
+    <div class="scroll-hint">
+      <span>role</span>
+      <div class="line"></div>
+    </div>
+  </div>
+
+  <!-- ==================================================
+       2. FOTOS LARGADAS (SCATTER)
+  ================================================== -->
+  <section class="section-scatter">
+    <div class="scatter-label-wrap reveal">
+      <span class="section-label">01 · 05 · 2026</span>
+      <h2 class="section-title"><em>Momentos</em> do Nosso Dia</h2>
+    </div>
+
+    <div class="scatter-track" id="scatter-track">
+      <!-- Fotos injetadas pelo JS via Cloudinary, até 6 -->
+    </div>
+  </section>
+
+  <!-- ==================================================
+       3. VOTOS
+  ================================================== -->
+  <section class="section section-votos">
+    <div class="votos-inner">
+
+      <!-- Fotos dos cadernos de votos -->
+      <div>
+        <div class="votos-header reveal">
+          <span class="section-label">Com amor, com fé</span>
+          <h2 class="votos-titulo">
+            <em>ditos no altar</em>
+            Os Votos
+          </h2>
+        </div>
+
+        <div class="votos-fotos">
+          <div class="voto-foto-wrap reveal d1">
+            <div class="voto-foto-inner">
+              <img
+                src="https://res.cloudinary.com/dciyadljs/image/upload/f_auto,q_auto,w_800/v1779892914/IMG_8889_gbhuzf.jpg"
+                alt="Votos dela"
+                loading="lazy"
+              >
+              <span class="voto-caption">Anna Paula</span>
+            </div>
+          </div>
+          <div class="voto-foto-wrap reveal d2">
+            <div class="voto-foto-inner">
+              <img
+                src="https://res.cloudinary.com/dciyadljs/image/upload/f_auto,q_auto,w_800/v1779892909/IMG_8896_u48xu6.jpg"
+                alt="Votos dele"
+                loading="lazy"
+              >
+              <span class="voto-caption">Antony</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Textos -->
+      <div class="votos-textos">
+        <div class="bloco-voto reveal">
+          <p class="bloco-voto-label">Anna Paula</p>
+          <p>
+            Escreva aqui as palavras da Anna Paula — aquelas ditas com o coração aberto no altar,
+            que ficaram guardadas em quem estava lá e que agora vivem para sempre nessas linhas.
+          </p>
+        </div>
+
+        <div class="bloco-voto reveal d2">
+          <p class="bloco-voto-label">Antony</p>
+          <p>
+            E aqui as suas palavras — a promessa feita diante de quem mais amam,
+            um compromisso que começa naquele dia e que não tem fim previsto.
+          </p>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Divisor -->
+  <div class="divisor">
+    <p class="divisor-text">Uma vida construída juntos, um dia de cada vez</p>
+    <div class="divisor-ornament"><div class="div-diamond"></div></div>
+  </div>
+
+  <!-- ==================================================
+       4. GALERIA MASONRY (Cloudinary)
+  ================================================== -->
+  <section class="section section-galeria">
+    <div class="galeria-header reveal">
+      <span class="section-label" style="color:var(--rose-dk)">Nossos Registros</span>
+      <h2 class="section-title" style="color:var(--off-white)"><em>Memórias</em> do nosso dia</h2>
+    </div>
+
+    <div class="masonry-grid" id="masonry-grid">
+      <p class="galeria-loading">Carregando memórias…</p>
+    </div>
+  </section>
+
+  <!-- ==================================================
+       5. VÍDEO
+  ================================================== -->
+  <section class="section section-video">
+    <div class="video-header reveal">
+      <span class="section-label">o filme</span>
+      <h2 class="section-title"><em>A Cerimônia</em></h2>
+    </div>
+
+    <div class="video-frame-outer" id="video-frame">
+      <div class="video-ratio">
+        <iframe
+          src="https://www.youtube.com/embed/VeNPEH9nMW0?controls=1&rel=0&playsinline=1&color=white"
+          title="Cerimônia · Antony & Anna Paula · 1º de Maio de 2026"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+          allowfullscreen
+          loading="lazy"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================
+       6. TIMELINE
+  ================================================== -->
+  <section class="section section-timeline">
+    <div class="reveal" style="text-align:center">
+      <span class="section-label">o dia</span>
+      <h2 class="section-title"><em>Como tudo aconteceu</em></h2>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-content">
+          <p class="tl-hora">Manhã</p>
+          <h3 class="tl-titulo">Preparativos</h3>
+          <p class="tl-desc">A noiva cercada das pessoas que mais ama. O nervosismo leve, a alegria que transbordava em cada detalhe.</p>
+        </div>
+        <div class="tl-dot"></div>
+        <div class="tl-spacer"></div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-spacer"></div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <p class="tl-hora">Cerimônia</p>
+          <h3 class="tl-titulo">O Altar</h3>
+          <p class="tl-desc">Os votos ditos, as alianças trocadas. O momento em que duas histórias se tornaram uma só.</p>
+        </div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-content">
+          <p class="tl-hora">Celebração</p>
+          <h3 class="tl-titulo">A Festa</h3>
+          <p class="tl-desc">Risadas, danças e a certeza crescente de que esse era o começo de algo extraordinário.</p>
+        </div>
+        <div class="tl-dot"></div>
+        <div class="tl-spacer"></div>
+      </div>
+
+      <div class="tl-item">
+        <div class="tl-spacer"></div>
+        <div class="tl-dot"></div>
+        <div class="tl-content">
+          <p class="tl-hora">Para Sempre</p>
+          <h3 class="tl-titulo">1º de Maio</h3>
+          <p class="tl-desc">A data que ficará guardada no coração de todos que estiveram presentes.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================
+       FOOTER
+  ================================================== -->
+  <footer>
+    <p class="footer-names">Antony & Anna Paula</p>
+    <p class="footer-date">1º de Maio de 2026</p>
+    <div class="footer-divider"></div>
+    <p class="footer-love">feito com amor, guardado para sempre</p>
+  </footer>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+  <script>
+  /* =====================================================
+     CURSOR
+  ===================================================== */
+  const cursorDot  = document.getElementById('cursor');
+  const cursorRing = document.getElementById('cursor-ring');
+  let mx=0, my=0, rx=0, ry=0;
+
+  document.addEventListener('mousemove', e => { mx=e.clientX; my=e.clientY; }, { passive:true });
+
+  (function animCursor() {
+    rx += (mx-rx) * .13;
+    ry += (my-ry) * .13;
+    cursorDot.style.left  = mx+'px';
+    cursorDot.style.top   = my+'px';
+    cursorRing.style.left = rx+'px';
+    cursorRing.style.top  = ry+'px';
+    requestAnimationFrame(animCursor);
+  })();
+
+  document.querySelectorAll('a,button,iframe,.scatter-photo,.voto-foto-wrap').forEach(el => {
+    el.addEventListener('mouseenter', () => {
+      cursorDot.style.width  = '20px';
+      cursorDot.style.height = '20px';
+      cursorDot.style.background = 'var(--blush)';
+    });
+    el.addEventListener('mouseleave', () => {
+      cursorDot.style.width  = '9px';
+      cursorDot.style.height = '9px';
+      cursorDot.style.background = 'var(--rose)';
+    });
+  });
+
+  /* =====================================================
+     PROGRESS BAR
+  ===================================================== */
+  const bar = document.getElementById('progress-bar');
+  window.addEventListener('scroll', () => {
+    const s = window.scrollY;
+    const h = document.documentElement.scrollHeight - window.innerHeight;
+    bar.style.transform = `scaleX(${s / h})`;
+  }, { passive: true });
+
+  /* =====================================================
+     PÉTALAS — canvas leve (menos partículas no mobile)
+  ===================================================== */
+  const cvs = document.getElementById('petals-canvas');
+  const ctx = cvs.getContext('2d');
+  const isMobile = window.innerWidth < 700;
+  const N = isMobile ? 12 : 22;
+
+  const resize = () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; };
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  const COLORS = ['#FECFC4','#FFE8E2','#F4A89A','#FFF3EF','#FDDDD8'];
+  const petals = Array.from({ length: N }, () => ({
+    x: Math.random() * window.innerWidth,
+    y: Math.random() * window.innerHeight - window.innerHeight,
+    rx: 2.5 + Math.random() * 4,
+    ry: 3.5 + Math.random() * 5,
+    vy: .35 + Math.random() * .55,
+    vx: (Math.random() - .5) * .4,
+    rot: Math.random() * Math.PI * 2,
+    rv: (Math.random() - .5) * .012,
+    a: .3 + Math.random() * .45,
+    col: COLORS[Math.floor(Math.random() * COLORS.length)]
+  }));
+
+  (function animPetals() {
+    ctx.clearRect(0, 0, cvs.width, cvs.height);
+    for (const p of petals) {
+      p.y += p.vy; p.x += p.vx + Math.sin(p.y * .013) * .25; p.rot += p.rv;
+      if (p.y > cvs.height + 20) { p.y = -20; p.x = Math.random() * cvs.width; }
+      ctx.save();
+      ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+      ctx.globalAlpha = p.a; ctx.fillStyle = p.col;
+      ctx.beginPath(); ctx.ellipse(0, 0, p.rx, p.ry, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
+    requestAnimationFrame(animPetals);
+  })();
+
+  /* =====================================================
+     GSAP — HERO SCROLL
+  ===================================================== */
+  gsap.registerPlugin(ScrollTrigger);
+
+  gsap.from('#hero-names', { y: 55, opacity: 0, duration: 1.8, ease: 'power3.out', delay: .35 });
+  gsap.from('#hero-date',  { y: 22, opacity: 0, duration: 1.6, ease: 'power3.out', delay: 1.0  });
+  gsap.from('.scroll-hint',{ opacity: 0, duration: 1.3, delay: 2.0 });
+
+  const tlHero = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#hero-wrapper',
+      start: 'top top', end: '+=270%',
+      scrub: 1, pin: true
+    }
+  });
+  tlHero.to('.scene-1 img',          { scale: 1.07, ease: 'none', duration: 3 }, 0);
+  tlHero.to('.scene-1 .scene-text',  { y: -88, opacity: 0, duration: .55 }, 0);
+  tlHero.fromTo('.scene-2',          { opacity:0, scale:1.1 }, { opacity:1, scale:1, duration:1.1 }, .4);
+  tlHero.fromTo('.titulo-cena-2',    { y:50, opacity:0 }, { y:0, opacity:1, duration:.7 }, .85);
+  tlHero.to('.scene-2',              { opacity:0, duration:.55 }, 1.75);
+  tlHero.to('.titulo-cena-2',        { y:-65, opacity:0, duration:.5 }, 1.65);
+  tlHero.fromTo('.scene-3',          { opacity:0, scale:1.08 }, { opacity:1, scale:1, duration:1.1 }, 1.95);
+  tlHero.fromTo('.titulo-cena-3',    { y:50, opacity:0 }, { y:0, opacity:1, duration:.7 }, 2.35);
+
+  /* =====================================================
+     REVEAL GENÉRICO (IntersectionObserver)
+  ===================================================== */
+  const revealObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('visible'); revealObs.unobserve(e.target); }
+    });
+  }, { threshold: .13 });
+  document.querySelectorAll('.reveal').forEach(el => revealObs.observe(el));
+
+  /* =====================================================
+     TIMELINE
+  ===================================================== */
+  const tlObs = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        gsap.to(e.target, { y:0, opacity:1, duration:.88, ease:'power2.out' });
+        tlObs.unobserve(e.target);
+      }
+    });
+  }, { threshold: .18 });
+  document.querySelectorAll('.tl-item').forEach(el => tlObs.observe(el));
+
+  /* =====================================================
+     VÍDEO REVEAL
+  ===================================================== */
+  new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        document.getElementById('video-frame').classList.add('in-view');
+      }
+    });
+  }, { threshold: .18 }).observe(document.getElementById('video-frame'));
+
+  /* =====================================================
+     FOTOS DOS VOTOS — parallax leve
+  ===================================================== */
+  document.querySelectorAll('.voto-foto-wrap').forEach((el, i) => {
+    gsap.to(el, {
+      scrollTrigger: {
+        trigger: el, start: 'top bottom', end: 'bottom top', scrub: 1.4
+      },
+      y: i === 0 ? -20 : -35,
+      ease: 'none'
+    });
+  });
+
+  /* =====================================================
+     SCATTER — fotos largadas (Cloudinary)
+     Usa as primeiras 6 fotos da tag galeria-memorial
+  ===================================================== */
+  const CLOUD = 'dciyadljs';
+  const TAG   = 'galeria-memorial';
+  const scatterTrack = document.getElementById('scatter-track');
+
+  // Legendas possíveis (podem customizar)
+  const legendas = ['nosso dia', 'detalhes', 'memórias', 'amor', 'felicidade', 'juntos'];
+
+  fetch(`https://res.cloudinary.com/${CLOUD}/image/list/${TAG}.json`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      const res = (data.resources || [])
+        .sort(() => Math.random() - .5)
+        .slice(0, 6);
+
+      if (res.length === 0) throw new Error('empty');
+
+      scatterTrack.innerHTML = '';
+
+      res.forEach((foto, i) => {
+        const url = `https://res.cloudinary.com/${CLOUD}/image/upload/f_auto,q_auto,w_700/${foto.public_id}`;
+        const el = document.createElement('div');
+        el.className = 'scatter-photo';
+        el.innerHTML = `
+          <div class="scatter-photo-inner">
+            <img src="${url}" alt="Momento ${i+1}" loading="lazy">
+            <span class="caption">${legendas[i] || 'memória'}</span>
+          </div>`;
+        scatterTrack.appendChild(el);
+
+        // Anima ao entrar na viewport — cai "de cima" como foto largada
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              gsap.to(e.target, {
+                y: 0, opacity: 1,
+                duration: .9,
+                ease: 'back.out(1.4)',
+                delay: i * .08
+              });
+              obs.unobserve(e.target);
+            }
+          });
+        }, { threshold: .1 });
+        obs.observe(el);
+      });
+    })
+    .catch(() => {
+      // fallback estático
+      const fallbackUrls = [
+        'https://images.unsplash.com/photo-1520854221256-17451cc331bf?w=600&q=80',
+        'https://images.unsplash.com/photo-1519741497674-611481863552?w=600&q=80',
+        'https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=600&q=80',
+        'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=600&q=80',
+        'https://images.unsplash.com/photo-1606800052052-a08af7148866?w=600&q=80',
+        'https://images.unsplash.com/photo-1511285560929-80b456fea0bc?w=600&q=80',
+      ];
+      scatterTrack.innerHTML = '';
+      fallbackUrls.forEach((src, i) => {
+        const el = document.createElement('div');
+        el.className = 'scatter-photo';
+        el.innerHTML = `<div class="scatter-photo-inner">
+          <img src="${src}" alt="Memória ${i+1}" loading="lazy">
+          <span class="caption">${legendas[i]}</span></div>`;
+        scatterTrack.appendChild(el);
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              gsap.to(e.target, { y:0, opacity:1, duration:.9, ease:'back.out(1.4)', delay: i*.08 });
+              obs.unobserve(e.target);
+            }
+          });
+        }, { threshold: .1 });
+        obs.observe(el);
+      });
+    });
+
+  /* =====================================================
+     MASONRY GALERIA CLOUDINARY
+  ===================================================== */
+  const masonryGrid = document.getElementById('masonry-grid');
+
+  fetch(`https://res.cloudinary.com/${CLOUD}/image/list/${TAG}.json`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(data => {
+      const resources = (data.resources || []).sort(() => Math.random() - .5).slice(0, 15);
+      if (!resources.length) throw new Error('empty');
+
+      masonryGrid.innerHTML = '';
+      resources.forEach((foto, i) => {
+        const url = `https://res.cloudinary.com/${CLOUD}/image/upload/f_auto,q_auto,w_800/${foto.public_id}`;
+        const item = document.createElement('div');
+        item.className = 'masonry-item';
+        item.innerHTML = `<img src="${url}" alt="Memória" loading="lazy">`;
+        masonryGrid.appendChild(item);
+
+        new IntersectionObserver((entries) => {
+          entries.forEach(e => {
+            if (e.isIntersecting) {
+              gsap.to(e.target, {
+                y:0, opacity:1, duration:.85,
+                ease:'power2.out', delay:(i % 3) * .06
+              });
+            }
+          });
+        }, { threshold: .08 }).observe(item);
+      });
+    })
+    .catch(() => {
+      masonryGrid.innerHTML = '<p class="galeria-loading" style="color:var(--rose-dk)">Configure a tag no Cloudinary para carregar suas fotos.</p>';
+    });
+
+  </script>
+</body>
+</html>
